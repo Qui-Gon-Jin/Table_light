@@ -7,7 +7,7 @@ CRGB leds[NUM_LEDS];
 byte counter = 0;
 const int button_pin = 4;
 int button_state = 0;
-byte effect_counter = 0;
+byte effect_counter = 0; 
 bool pulse_direction = true;
 //
 void setup() {
@@ -50,8 +50,8 @@ void loop() {
 			}
 		break;
 	}
-	fade();
-	//pulsing_low();
+	//fade();
+	pulsing_low();
 	FastLED.show();
 	delay(50);
 }
@@ -73,24 +73,21 @@ void fade(){
 	}
 }
 void pulsing_low(){
-
-	counter++;
 	if (pulse_direction == true)
 	{
-		FastLED.setBrightness(counter);
+		counter++;
 		if (counter == 255)
 		{
 			pulse_direction = false;
-			counter = 200;
 		}
 	}   
 	else
 	{
-		FastLED.setBrightness((255 - counter));
-		if (counter == 255)
+		counter--;
+		if (counter == 0)
 		{
 			pulse_direction = true;
-			counter = 200;
 		}
 	}
+	FastLED.setBrightness(counter);
 }
