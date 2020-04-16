@@ -69,7 +69,7 @@ void loop() {
 		//green - hsv 150
 		color_diff = (200 - 170)/NUM_LEDS;
 			for (int i = 0; i < NUM_LEDS; i++ ){
-				leds[i] = CHSV(170 + (color_diff * i)*5, 255, 255);
+				leds[i] = CHSV(170 + color_diff * i, 255, 255);
 			}
 		break;
 		case 5:
