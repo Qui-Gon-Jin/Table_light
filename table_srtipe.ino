@@ -79,10 +79,10 @@ void loop() {
 			}
 		break;
 	}
-	//fade();
-	pulsing_low();
+	fade();
+	//pulsing_low();
 	FastLED.show();
-	delay(50);
+	//delay(50);
 }
 
 void fade(){
