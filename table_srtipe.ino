@@ -14,7 +14,6 @@ unsigned long last_press;
 //
 void setup() {
 	FastLED.addLeds<WS2811, STRIPE_PIN, GRB>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-	FastLED.setBrightness(10);
 	pinMode(13, OUTPUT);
 	pinMode(button_pin, INPUT);
 }
@@ -52,40 +51,27 @@ void loop() {
 			}
 		break;
 		case 3:
-		//epileptic rainbow
-			for (int i = 0; i < NUM_LEDS; i++ ){
-				leds[i] = CHSV(0,0,0);
-			}
-			FastLED.show();
-			delay(100);
-			for (int i = 0; i < NUM_LEDS; i++ ){
-				leds[i] = CHSV(counter + i * 15, 255, 255);
-			}
-		break;
-		case 4:
 		//cyberpanky boi
-		//pink - hsv 250
-		//blue - rgb 10,111,250
-		//green - hsv 150
+		//pink 250, blue 180, green 150
 		color_diff = (200 - 170)/NUM_LEDS;
 			for (int i = 0; i < NUM_LEDS; i++ ){
 				leds[i] = CHSV(170 + color_diff * i, 255, 255);
 			}
 		break;
-		case 5:
+		case 4:
 		//void
 			for (int i = 0; i < NUM_LEDS; i++ ){
 				leds[i] = CHSV(0,0,0);
 			}
 		break;
 	}
-	fade();
+	//pulsing();
 	//pulsing_low();
+	pulsing_high();
 	FastLED.show();
-	//delay(50);
+	delay(25);
 }
-
-void fade(){
+void pulsing(){
 	counter++;
 	if (pulse_direction == true)
 	{
@@ -116,5 +102,19 @@ void pulsing_low(){
 			pulse_direction = true;
 	}
 	FastLED.setBrightness(counter);
-	//delay(25);
+}
+void pulsing_high(){
+	if (pulse_direction == true)
+	{
+		counter++;
+		if (counter == 255)
+			pulse_direction = false;
+	}   
+	else
+	{
+		counter--;
+		if (counter == 150)
+			pulse_direction = true;
+	}
+	FastLED.setBrightness(counter);
 }
