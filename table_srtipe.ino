@@ -1,142 +1,63 @@
-#include "FastLED.h"
-//
-#define NUM_LEDS 29
-#define STRIPE_PIN 6
-//
-CRGB leds[NUM_LEDS];
-byte previous_led[NUM_LEDS];
-const int button_pin = 4;
-int color_diff;
-int button_state = 0;
-byte effect_counter = 0, counter = 0, color = 0; 
-boolean pulse_direction = true, button_flag = false, button;
-unsigned long last_press;
-//
+// настройки ленты
+#define NUM_LEDS 100    // количество светодиодов
+#define LED_PIN 13      // пин ленты
+
+// настройки пламени
+#define HUE_GAP 21      // заброс по hue
+#define FIRE_STEP 15    // шаг огня
+#define HUE_START 0     // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
+#define MIN_BRIGHT 70   // мин. яркость огня
+#define MAX_BRIGHT 255  // макс. яркость огня
+#define MIN_SAT 245     // мин. насыщенность
+#define MAX_SAT 255     // макс. насыщенность
+
+// для разработчиков
+#include <FastLED.h>
+#define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
+#define COLOR_DEBTH 2   // цветовая глубина: 1, 2, 3 (в байтах)
+// на меньшем цветовом разрешении скетч будет занимать в разы меньше места,
+// но уменьшится и количество оттенков и уровней яркости!
+
+// ВНИМАНИЕ! define настройки (ORDER_GRB и COLOR_DEBTH) делаются до подключения библиотеки!
+#include <microLED.h>
+
+LEDdata leds[NUM_LEDS];  // буфер ленты типа LEDdata (размер зависит от COLOR_DEBTH)
+microLED strip(leds, NUM_LEDS, LED_PIN);  // объект лента
+int counter = 0;
+
+// ленивая жопа
+#define FOR_i(from, to) for(int i = (from); i < (to); i++)
+#define FOR_j(from, to) for(int j = (from); j < (to); j++)
+
 void setup() {
-	FastLED.addLeds<WS2811, STRIPE_PIN, GRB>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-	pinMode(13, OUTPUT);
-	pinMode(button_pin, INPUT);
-}
-//
-void loop() { 
-	button = digitalRead(button_pin);
-	if (button == true && button_flag == false && millis() - last_press > 50)
-	{
-		button_flag = true;
-		last_press = millis();
-		effect_counter++;
-		if (effect_counter >= 6)
-			effect_counter = 0;
-	}
-	if (button == false && button_flag == true)
-		button_flag = false;
-
-	switch(effect_counter){
-		case 0:
-				//cyberpanky boi
-		//pink 250, blue 180, green 150
-		color_diff = (200 - 170)/NUM_LEDS;
-		if(previous_led[0] == 0)
-		{
-			for (int i = 0; i < NUM_LEDS; i++ ){
-				if (i == 0){
-					color = random(150, 250);
-					leds[i] = CHSV(color , 255, 255);
-					previous_led[i] = color;
-				}
-				else{
-					color = random(previous_led[i-1] - 15, previous_led[i-1] + 15);
-					leds[i] = CHSV(color , 255, 255);
-					previous_led[i] = color;
-				}
-			}
-		}
-		else{
-			for (int i = 0; i < NUM_LEDS; i++ ){
-				color = random(previous_led[i] - 10, previous_led[i] + 10);
-				if (color <= 150)
-					color = 250;
-				if (color >= 250)
-					color = 150;
-
-				leds[i] = CHSV(color, 255, 255);
-				previous_led[i] = leds[i];
-			}
-
-		}
-		break;
-		case 1:
-		//sun
-			for (int i = 0; i < NUM_LEDS; i++ )
-				leds[i] = DirectSunlight;
-		break;
-		case 2:
-		//light violet and blue
-			for (int i = 0; i < NUM_LEDS; i++ )
-				leds[i] = CRGB::BlueViolet;
-		break;
-		case 3:
-		//rainbow
-			for (int i = 0; i < NUM_LEDS; i++ )
-				leds[i] = CHSV(counter + i * 5, 255, 255);
-		break;
-		case 4:
-		//void
-			for (int i = 0; i < NUM_LEDS; i++ )
-				leds[i] = CHSV(0,0,0);
-		break;
-	}
-	//pulsing();
-	//pulsing_low();
-	pulsing_high();
-	FastLED.show();
-	delay(25);
+  strip.setBrightness(255);
 }
 
-void pulsing(){
-	counter++;
-	if (pulse_direction == true)
-	{
-		FastLED.setBrightness(counter);
-		if (counter == 255)
-			pulse_direction = false;
-	}   
-	else
-	{
-		FastLED.setBrightness((255 - counter));
-		if (counter == 255)
-		{
-			pulse_direction = true;
-		}
-	}
+void loop() {
+  fireTick();
 }
-void pulsing_low(){
-	if (pulse_direction == true)
-	{
-		counter++;
-		if (counter == 20)
-			pulse_direction = false;
-	}   
-	else
-	{
-		counter--;
-		if (counter == 0)
-			pulse_direction = true;
-	}
-	FastLED.setBrightness(counter);
+
+void fireTick() {
+  static uint32_t prevTime;
+
+  // двигаем пламя
+  if (millis() - prevTime > 20) {
+    prevTime = millis();
+    int thisPos = 0, lastPos = 0;
+    FOR_i(0, NUM_LEDS) {
+      leds[i] = getFireColor((inoise8(i * FIRE_STEP, counter)));
+    }
+    counter += 20;
+    strip.show();
+  }
 }
-void pulsing_high(){
-	if (pulse_direction == true)
-	{
-		counter++;
-		if (counter == 255)
-			pulse_direction = false;
-	}   
-	else
-	{
-		counter--;
-		if (counter == 100)
-			pulse_direction = true;
-	}
-	FastLED.setBrightness(counter);
+
+// возвращает цвет огня для одного пикселя
+LEDdata getFireColor(int val) {
+  // чем больше val, тем сильнее сдвигается цвет, падает насыщеность и растёт яркость
+  return mHSV(
+           HUE_START + map(val, 0, 255, 0, HUE_GAP),                    // H
+           constrain(map(val, 0, 255, MAX_SAT, MIN_SAT), 0, 255),       // S
+           constrain(map(val, 0, 255, MIN_BRIGHT, MAX_BRIGHT), 0, 255)  // V
+         );
 }
