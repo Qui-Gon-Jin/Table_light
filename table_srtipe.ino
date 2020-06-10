@@ -1,6 +1,6 @@
-#define NUM_LEDS 29
+#define NUM_LEDS 10
 #define STRIPE_PIN 6
-// настройки пламени
+
 #define HUE_GAP 80      // шаг в стороны по hue
 #define FIRE_STEP 15    // шаг огня
 #define HUE_START 150   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
@@ -8,21 +8,20 @@
 #define MAX_BRIGHT 255  // макс. яркость огня
 #define MIN_SAT 245     // мин. насыщенность
 #define MAX_SAT 255     // макс. насыщенность
-// для разработчиков
-#include <FastLED.h>
+
 #define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
 #define COLOR_DEBTH 2
 #define PIN 6
-// ВНИМАНИЕ! define настройки (ORDER_GRB и COLOR_DEBTH) делаются до подключения библиотеки!
+#include <FastLED.h>
 #include <microLED.h>
 
 LEDdata fire_leds[NUM_LEDS];  // буфер ленты типа LEDdata (размер зависит от COLOR_DEBTH)
 microLED strip(fire_leds, NUM_LEDS, STRIPE_PIN);  // объект лента
 int fire_counter = 0;
-//
+
 #define FOR_i(from, to) for(int i = (from); i < (to); i++)
 #define FOR_j(from, to) for(int j = (from); j < (to); j++)
-//
+
 CRGB leds[NUM_LEDS];
 
 byte counter = 0;
@@ -32,7 +31,7 @@ int button_state = 0;
 byte effect_counter = 0; 
 boolean pulse_direction = true, button_flag = false, button;
 unsigned long last_press;
-//
+
 void setup() {
   Serial.begin(9600);
   strip.setBrightness(255);
