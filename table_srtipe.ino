@@ -1,18 +1,21 @@
-#define NUM_LEDS 10
+#include <FastLED.h>
+#define NUM_LEDS 29
 #define STRIPE_PIN 6
-
-#define HUE_GAP 80      // шаг в стороны по hue
-#define FIRE_STEP 15    // шаг огня
-#define HUE_START 150   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
-#define MIN_BRIGHT 120   // мин. яркость огня
-#define MAX_BRIGHT 255  // макс. яркость огня
-#define MIN_SAT 245     // мин. насыщенность
-#define MAX_SAT 255     // макс. насыщенность
 
 #define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
 #define COLOR_DEBTH 2
 #define PIN 6
-#include <FastLED.h>
+//#define HUE_GAP 80      // шаг в стороны по hue
+//#define FIRE_STEP 15    // шаг огня
+//#define HUE_START 150   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
+#define HUE_GAP 100
+#define FIRE_STEP 50 
+#define HUE_START 190
+#define MIN_BRIGHT 200   // мин. яркость огня
+#define MAX_BRIGHT 255  // макс. яркость огня
+#define MIN_SAT 240     // мин. насыщенность
+#define MAX_SAT 255     // макс. насыщенность
+
 #include <microLED.h>
 
 LEDdata fire_leds[NUM_LEDS];  // буфер ленты типа LEDdata (размер зависит от COLOR_DEBTH)
@@ -35,19 +38,16 @@ unsigned long last_press;
 void setup() {
   Serial.begin(9600);
   strip.setBrightness(255);
-
   FastLED.addLeds<WS2811, PIN, GRB>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(255);
-
   pinMode(4, INPUT_PULLUP);
 }
 
 void loop() {
-
   button = digitalRead(4);
   if (button == 1 && button_flag == 0){
     button_flag = 1;
-    if (effect_counter <= 3)
+    if (effect_counter <= 2)
       effect_counter++;
     else
       effect_counter = 0;
@@ -56,30 +56,23 @@ void loop() {
   if (button == 0 && button_flag == 1){
     button_flag = 0;
   }
-
 	switch(effect_counter){
 		case 0:
     fireTick();
 		break;
 		case 1:
       for (int i = 0; i < NUM_LEDS; i++ ){
-        leds[i] = CHSV(counter + i * 5, 255, 255);
+        leds[i] = CHSV(counter + i * 10, 255, 255);
       }
       FastLED.show();
 		break;
-		case 2:
-			for (int i = 0; i < NUM_LEDS; i++ ){
-				leds[i] = CRGB::BlueViolet;
-			}
+		case 2:  
+    for (int i = 0; i < NUM_LEDS; i++ ) {
+        leds[i] = CRGB(250, 0, 190);
+      }
       FastLED.show();
 		break;
 		case 3:
-    for (int i = 0; i < NUM_LEDS; i++ ) {
-        leds[i] = CRGB::White;
-      }
-      FastLED.show();
-		break;
-		case 4:
 			for (int i = 0; i < NUM_LEDS; i++ ){
 				leds[i] = CHSV(0,0,0);
 			}
@@ -87,11 +80,9 @@ void loop() {
 		break;
 	}
   delay(30);
-  //Serial.print("effect:" + String(effect_counter) + "\t:\t" + "counter:" + String(counter) + "\n");
-  //Serial.print("direction: " + String(pulse_direction) + "\t:\t" + "flag: " + String(button_flag) + "\n");
-  //Serial.print("___________________________________\n___________________________________\n");
-  //brightness(4);
-  //high, low, pulsing, high_pusling, low_pulsing
+  brightness(4);
+  //counter++;
+  //debug();
 }
 
 void fireTick() {
@@ -125,9 +116,8 @@ void brightness(int value){
     case 2:
       FastLED.setBrightness(50);
     break;
-
+    
     case 3:
-      counter++;
         if (pulse_direction == true)
         {
           FastLED.setBrightness(counter);
@@ -140,28 +130,30 @@ void brightness(int value){
           if (counter == 255)
             pulse_direction = true;
         }
+        counter++;
     break;
     case 4:
     if (pulse_direction == true)
     {
-      counter++;
-      if (counter == 255)
+      if (counter < 255)
+        counter++;
+      else
         pulse_direction = false;
     }   
     else
     {
       counter--;
-      if (counter == 150)
+      if (counter == 75)
         pulse_direction = true;
     }
     FastLED.setBrightness(counter);
     break;
-
     case 5:
+    delay(80);
       if (pulse_direction == true)
       {
         counter++;
-        if (counter == 20)
+        if (counter == 10)
         pulse_direction = false;
       }   
       else
@@ -173,4 +165,10 @@ void brightness(int value){
       FastLED.setBrightness(counter);
     break;
   }
+}
+void debug(){
+  Serial.print("effect:" + String(effect_counter) + "\t:\t" + "counter:" + String(counter) + "\n");
+  Serial.print("direction: " + String(pulse_direction) + "\t:\t" + "flag: " + String(button_flag) + "\n");
+  Serial.print("___________________________________\n___________________________________\n");
+  //high, low, pulsing, high_pusling, low_pulsing
 }
