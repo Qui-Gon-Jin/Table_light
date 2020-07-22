@@ -1,5 +1,7 @@
+//DC5V WS2812B
+//Мощность: 9 Вт/метр
 #include <FastLED.h>
-#define NUM_LEDS 29
+#define NUM_LEDS 44
 #define STRIPE_PIN 6
 
 #define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
@@ -8,12 +10,12 @@
 //#define HUE_GAP 80      // шаг в стороны по hue
 //#define FIRE_STEP 15    // шаг огня
 //#define HUE_START 150   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
-#define HUE_GAP 100
-#define FIRE_STEP 50 
-#define HUE_START 190
-#define MIN_BRIGHT 200   // мин. яркость огня
-#define MAX_BRIGHT 255  // макс. яркость огня
-#define MIN_SAT 240     // мин. насыщенность
+#define HUE_GAP 3
+#define FIRE_STEP 5 
+#define HUE_START 0
+#define MIN_BRIGHT 15   // мин. яркость огня
+#define MAX_BRIGHT 100  // макс. яркость огня
+#define MIN_SAT 245     // мин. насыщенность
 #define MAX_SAT 255     // макс. насыщенность
 
 #include <microLED.h>
@@ -79,7 +81,7 @@ void loop() {
       FastLED.show();
 		break;
 	}
-  delay(30);
+  delay(20);
   brightness(4);
   //counter++;
   //debug();
@@ -143,7 +145,7 @@ void brightness(int value){
     else
     {
       counter--;
-      if (counter == 75)
+      if (counter == 50)
         pulse_direction = true;
     }
     FastLED.setBrightness(counter);
