@@ -1,20 +1,20 @@
 //DC5V WS2812B
 //Мощность: 9 Вт/метр
 #include <FastLED.h>
-#define NUM_LEDS 44
+#define NUM_LEDS 10
 #define STRIPE_PIN 6
 
 #define ORDER_GRB       // порядок цветов ORDER_GRB / ORDER_RGB / ORDER_BRG
 #define COLOR_DEBTH 2
 #define PIN 6
-//#define HUE_GAP 80      // шаг в стороны по hue
-//#define FIRE_STEP 15    // шаг огня
-//#define HUE_START 150   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
-#define HUE_GAP 3
-#define FIRE_STEP 5 
-#define HUE_START 0
-#define MIN_BRIGHT 15   // мин. яркость огня
-#define MAX_BRIGHT 100  // макс. яркость огня
+#define HUE_GAP 80      // шаг в стороны по hue
+#define FIRE_STEP 15    // шаг огня
+#define HUE_START 190   // начальный цвет огня (0 красный, 80 зелёный, 140 молния, 190 розовый)
+//#define HUE_GAP 3
+//#define FIRE_STEP 5 
+//#define HUE_START 0
+#define MIN_BRIGHT 180   // мин. яркость огня
+#define MAX_BRIGHT 250  // макс. яркость огня
 #define MIN_SAT 245     // мин. насыщенность
 #define MAX_SAT 255     // макс. насыщенность
 
@@ -49,7 +49,7 @@ void loop() {
   button = digitalRead(4);
   if (button == 1 && button_flag == 0){
     button_flag = 1;
-    if (effect_counter <= 2)
+    if (effect_counter <= 3)
       effect_counter++;
     else
       effect_counter = 0;
@@ -57,32 +57,39 @@ void loop() {
   }
   if (button == 0 && button_flag == 1){
     button_flag = 0;
+
   }
 	switch(effect_counter){
 		case 0:
-    fireTick();
-		break;
+			fireTick();
+			break;
 		case 1:
-      for (int i = 0; i < NUM_LEDS; i++ ){
-        leds[i] = CHSV(counter + i * 10, 255, 255);
-      }
-      FastLED.show();
-		break;
+			for (int i = 0; i < NUM_LEDS; i++ ){
+				leds[i] = CHSV(counter + i * 10, 255, 255);
+			}
+			FastLED.show();
+			break;
 		case 2:  
-    for (int i = 0; i < NUM_LEDS; i++ ) {
-        leds[i] = CRGB(250, 0, 190);
-      }
-      FastLED.show();
-		break;
+			for (int i = 0; i < NUM_LEDS; i++ ) {
+				leds[i] = CRGB(250, 0, 190);
+			}
+			FastLED.show();
+			break;
 		case 3:
+			for (int i = 0; i < NUM_LEDS; i++ ){
+				leds[i] = CRGB(255, 214, 170);
+			}
+			FastLED.show();
+			break;
+		case 4:
 			for (int i = 0; i < NUM_LEDS; i++ ){
 				leds[i] = CHSV(0,0,0);
 			}
-      FastLED.show();
+			FastLED.show();
 		break;
 	}
-  delay(20);
-  brightness(4);
+  delay(10);
+  //brightness(4);
   //counter++;
   //debug();
 }
